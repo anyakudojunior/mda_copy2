@@ -4,4 +4,4 @@ sites = pd.read_csv("sites.csv")
 sites = sites[["counting_station", "latitude", "longitude", "municipality"]]
 
 # merge with data
-df = df.merge(sites, on"counting_station", how="left")
+finaldataset = data.merge(sites, on"counting_station", how="left")
