@@ -2,7 +2,7 @@
 import pandas as pd
 import glob
 import os
-os.chdir(r"C:\Users\Think\Documents\GitHub\MDA_course\data")
+os.chdir(r"C:\Users\Think\Documents\GitHub\MDA_course\data_raw")
 
 
 # save all 12 data sets names in one vector and create column labels
@@ -38,4 +38,5 @@ data
 data_sum = data.groupby(["siteID", "year", "month", "day", "hour"],as_index=False)["count"].sum()
 data_sum
 
+os.chdir(r"C:\Users\Think\Documents\GitHub\MDA_course\Datasets for features")
 data_sum.to_csv("count_data.csv", index=False)
