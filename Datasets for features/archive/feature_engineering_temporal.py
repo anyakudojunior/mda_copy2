@@ -2,10 +2,13 @@
 import pandas as pd
 import numpy as np
 import glob
+import os #add darya
+os.chdir(r"C:\Users\Think\Documents\GitHub\MDA_course\Datasets for features") #add darya
 
 # loading the files
 
-files = glob.glob("Datasets for features/data-2024-*-fixed.csv")
+files = glob.glob("archive\data-2024-*-fixed.csv") #add darya
+#files = glob.glob("Datasets for features/data-2024-*-fixed.csv")
 
 df_list = [pd.read_csv(f) for f in files]
 df = pd.concat(df_list, ignore_index=True)
@@ -55,7 +58,7 @@ print("Number of bad date/time rows:", len(bad_rows))
 df = df.dropna(subset=['datetime'])
 
 # Floor to the hour
-df['datetime_hour'] = df['datetime'].dt.floor('H')
+df['datetime_hour'] = df['datetime'].dt.floor('H') #add darya: should be h?
 
 # Aggregate 15-minute counts to hourly counts per station and direction
 df_hourly = (

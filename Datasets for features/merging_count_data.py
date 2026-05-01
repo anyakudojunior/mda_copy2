@@ -1,42 +1,74 @@
-# loading packages and setting working directory
+# loading packages
 import pandas as pd
 import glob
-import os
-os.chdir(r"C:\Users\Think\Documents\GitHub\MDA_course\data_raw")
 
-
-# save all 12 data sets names in one vector and create column labels
-files = glob.glob("data-2024-*.csv")
+### part 1: loading and formating the count data sets
+# save all 12 data set names in one vector and create column labels
+files = glob.glob("data_raw\data-2024-*.csv")
 col_names = ["siteID", "direction", "type", "start_date", "end_date", "count"]
 
 # read in all data sets + bind the rows to create one big data set
 data = pd.concat([pd.read_csv(f, header=None, names=col_names) for f in files], ignore_index=True)
 # checking if data sets look correct
-data.shape
-data.head()
+print(data.shape)
 
-# preparing the columns, filter type to bikes only
+# preparing the columns: filter type to bikes only
 data = data[data["type"] == "FIETSERS"]
 
-# instead of start and end date, create one column for start year, month, day and time (especially hour)
+# instead of start and end date, create single columns for date, hour etc.
 data["start_date"] = pd.to_datetime(data["start_date"])
-data["year"] = data["start_date"].dt.year
-data["month"] = data["start_date"].dt.month
-data["day"] = data["start_date"].dt.day
-#data["time"] = data["start_date"].dt.time # do we need this?
+data["date"] = data["start_date"].dt.date # for grouping per date to sum up
+data["month"] = data["start_date"].dt.month # temp: for getting season
 data["hour"] = data["start_date"].dt.hour
+data['day_of_week'] = data['start_date'].dt.dayofweek # temp: for getting weekend
+data['weekend'] = data['day_of_week'].isin([5, 6]).astype(int) # if weekend:1, if weekday:0
 
-# delete unnecessary columns (do we need end_date?)
-data = data.drop(columns=["direction", "type", "start_date", "end_date"])
+
+# delete unnecessary columns
+data = data.drop(columns=["direction", "type", "end_date", "day_of_week"])
 
 # check structure
-data
+print(data)
 
 
 # create one count number per hour
-# for the same siteID, year, month, day, hour - add up all the counts
-data_sum = data.groupby(["siteID", "year", "month", "day", "hour"],as_index=False)["count"].sum()
-data_sum
+# for the same siteID, date and hour - add up all the counts (month and weekend kept for analysis)
+data_sum = data.groupby(["siteID", "date", "hour", "month", "weekend"], as_index=False).agg({
+    "count": "sum", "start_date": "first"})
 
-os.chdir(r"C:\Users\Think\Documents\GitHub\MDA_course\Datasets for features")
-data_sum.to_csv("count_data.csv", index=False)
+print(data_sum)
+
+# first create one season variable, then add dummy variable per season instead
+def get_season(month):
+    if month in [12, 1, 2]:
+        return 'winter'
+    elif month in [3, 4, 5]:
+        return 'spring'
+    elif month in [6, 7, 8]:
+        return 'summer'
+    else:
+        return 'autumn'
+
+data_sum['season'] = data_sum['month'].apply(get_season)
+data_sum = pd.concat([data_sum, pd.get_dummies(data_sum['season'])], axis=1)
+
+data_sum = data_sum.drop(columns=["month", "season"])
+
+print(data_sum)
+
+
+### part 2: loading and merging with the sites data
+col_names_sites = ["siteID", "site_nr", "long", "lat", "naam", "domein", "wegnr",
+                   "district", "gemeente", "interval", "datum_van"]
+sites = pd.read_csv("data_raw\sites.csv", header=None, names=col_names_sites)
+
+# storing what we need in a new dataframe to later merge with the hourly data
+sites = sites[["siteID", "long", "lat", "gemeente"]]
+sites = sites.rename(columns={"gemeente": "municipality"})
+
+# merge with count data
+data_new = data_sum.merge(sites, on="siteID", how="left")
+
+print(data_new.iloc[12])
+
+data_new.to_csv("count_data.csv", index=False)
