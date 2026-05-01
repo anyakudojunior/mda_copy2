@@ -1,21 +1,26 @@
 import pandas as pd
 import numpy as np
-import glob
+#import glob
 
 # loading the files
 
-files = glob.glob("Datasets for features/data-2024-*-fixed.csv")
-meteo = pd.read_csv("Datasets for features/meteo 2024.csv")
-sites = pd.read_csv("Datasets for features/sites.csv")
-stops = pd.read_excel("Datasets for features/De lijn stops.xlsx")
+#files = glob.glob("Datasets for features/data-2024-*-fixed.csv")
+#meteo = pd.read_csv("Datasets for features/meteo 2024.csv")
+#sites = pd.read_csv("Datasets for features/sites.csv")
+#stops = pd.read_excel("De lijn stops.xlsx")
 
-print(sites.columns)
-print(sites.head(20))
-print(stops.columns)
+###counts = pd.read_csv("count_data.csv")
+col_names_sites = ["siteID", "site_nr", "long", "lat", "naam", "domein", "wegnr",
+                   "district", "gemeente", "interval", "datum_van"]
+sites = pd.read_csv("data_raw\sites.csv", header=None, names=col_names_sites)
+stops = pd.read_csv("data_raw\de_lijn_stops_2024_07_01.txt")
+
+#print(sites.columns)
+#print(sites.head(20))
 print(stops.columns)
 print(stops.head())
-sites_small = sites[['counting_station', 'lat', 'long']].copy()
-stops_small = stops[['lat', 'long']].copy()
+sites_small = sites[['siteID', 'lat', 'long']].copy()
+stops_small = stops[['stop_lat', 'stop_lon']].copy()
 
 # remove duplicate stop coordinates (make unique values)
 stops_small = stops_small.drop_duplicates().reset_index(drop=True)
@@ -60,10 +65,10 @@ print("Number of station-stop pairs:", len(pairs))
 
 # Compute distance in meters
 pairs['distance'] = haversine(
-    pairs['lat_station'],
-    pairs['long_station'],
-    pairs['lat_stop'],
-    pairs['long_stop']
+    pairs['lat'],#lat_station
+    pairs['long'],#long_station
+    pairs['stop_lat'],#lat_stop
+    pairs['stop_lon']#long_stop
 )
 
 print("Distance summary:")
@@ -88,7 +93,7 @@ pairs_1km['nearby_stop'] = 1
 
 # Accessibility index per station
 accessibility = (
-    pairs_1km.groupby('counting_station', as_index=False)
+    pairs_1km.groupby('siteID', as_index=False)
     .agg(
         accessibility_index=('weight', 'sum'),
         n_nearby_stops=('nearby_stop', 'sum')
@@ -96,9 +101,9 @@ accessibility = (
 )
 
 # Make sure ALL stations appear, even if they have no stop within 1 km
-accessibility = sites_small[['counting_station']].drop_duplicates().merge(
+accessibility = sites_small[['siteID']].drop_duplicates().merge(
     accessibility,
-    on='counting_station',
+    on='siteID',
     how='left'
 )
 
@@ -109,3 +114,9 @@ accessibility['n_nearby_stops'] = accessibility['n_nearby_stops'].fillna(0)
 print("Accessibility sample:")
 print(accessibility.head())
 print(accessibility.describe())
+
+sites_new = sites.merge(accessibility, on="siteID", how="left")
+sites_new = sites_new[["siteID", "long", "lat", "gemeente", "accessibility_index", "n_nearby_stops"]]
+sites_new = sites_new.rename(columns={"gemeente": "municipality"})
+
+print(sites_new.columns)
