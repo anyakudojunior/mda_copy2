@@ -1,22 +1,14 @@
 import pandas as pd
 import numpy as np
-#import glob
 
 # loading the files
-
-#files = glob.glob("Datasets for features/data-2024-*-fixed.csv")
-#meteo = pd.read_csv("Datasets for features/meteo 2024.csv")
-#sites = pd.read_csv("Datasets for features/sites.csv")
-#stops = pd.read_excel("De lijn stops.xlsx")
-
-###counts = pd.read_csv("count_data.csv")
 col_names_sites = ["siteID", "site_nr", "long", "lat", "naam", "domein", "wegnr",
                    "district", "gemeente", "interval", "datum_van"]
 sites = pd.read_csv("data_raw\sites.csv", header=None, names=col_names_sites)
 stops = pd.read_csv("data_raw\de_lijn_stops_2024_07_01.txt")
 
-#print(sites.columns)
-#print(sites.head(20))
+print(sites.columns)
+print(sites.head(20))
 print(stops.columns)
 print(stops.head())
 sites_small = sites[['siteID', 'lat', 'long']].copy()
@@ -65,10 +57,10 @@ print("Number of station-stop pairs:", len(pairs))
 
 # Compute distance in meters
 pairs['distance'] = haversine(
-    pairs['lat'],#lat_station
-    pairs['long'],#long_station
-    pairs['stop_lat'],#lat_stop
-    pairs['stop_lon']#long_stop
+    pairs['lat'],
+    pairs['long'],
+    pairs['stop_lat'],
+    pairs['stop_lon']
 )
 
 print("Distance summary:")
@@ -120,3 +112,7 @@ sites_new = sites_new[["siteID", "long", "lat", "gemeente", "accessibility_index
 sites_new = sites_new.rename(columns={"gemeente": "municipality"})
 
 print(sites_new.columns)
+# siteID', 'long', 'lat', 'municipality', 'accessibility_index', 'n_nearby_stops'
+
+# Save sites_new as the new sites csv, to be merged with the count data
+sites_new.to_csv("sites_x_pub_transport.csv", index=False)

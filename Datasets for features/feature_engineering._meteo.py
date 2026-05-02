@@ -1,34 +1,18 @@
-
 import pandas as pd
-import numpy as np
-import glob
 
-# loading the files
+# load data
+meteo = pd.read_csv(r"data_raw\aws_1hour_2024.csv")
 
-files = glob.glob("Datasets for features/data-2024-*-fixed.csv")
 
-df_list = [pd.read_csv(f) for f in files]
-df = pd.concat(df_list, ignore_index=True)
+# format the coordinates and the date into format needed
+meteo = meteo[["the_geom", "timestamp", "precip_quantity", "temp_dry_shelter_avg", "sun_duration"]]
+meteo[["lat","long"]] = (meteo["the_geom"].str.replace("POINT", "", regex=False)
+                                       .str.replace("(", "", regex=False).str.replace(")", "", regex=False)
+                                       .str.strip().str.split(expand=True).astype(float))
+meteo["datetime"] = pd.to_datetime(meteo["timestamp"])
 
-meteo = pd.read_csv("Datasets for features/meteo 2024.csv")
-sites = pd.read_csv("Datasets for features/sites.csv")
-stops = pd.read_excel("Datasets for features/De lijn stops.xlsx")
-
-print(meteo.columns)
 print(meteo.columns)
 print(meteo.head())
-
-# Clean columns
-meteo['date 1'] = meteo['date 1'].astype(str).str.strip()
-meteo['hour 1'] = meteo['hour 1'].astype(str).str.strip()
-
-# Create datetime
-# Combining the date and hour colummn (ex. 07/12/2024 13:00)
-meteo['datetime'] = pd.to_datetime(
-    meteo['date 1'] + ' ' + meteo['hour 1'],
-    dayfirst=True,
-    errors='coerce'
-)
 
 # Drop bad rows
 meteo = meteo.dropna(subset=['datetime'])
@@ -64,6 +48,10 @@ daily_sun = (
 )
 
 daily_sun['sun_hours'] = daily_sun['sun_duration'] / 60
+##TODO: sometimes more than 24 hours?!
+# probably becaosue in lines 26-33 you don't aggregate by location and sum up for all locations
+print(daily_sun['sun_hours'].describe())
+
 
 # Merge daily sun back to hourly weather
 meteo_features = meteo_hourly.merge(
@@ -80,5 +68,8 @@ meteo_features = meteo_features[
 print(meteo_features.head())
 print(meteo_features.isna().sum())
 
-# total coloumn : date, hour, temp_dry_shelter, rain, sun_hours
+# total columns: date, hour, temp_dry_shelter, rain, sun_hours
 print(len(meteo_features))
+
+##TODO missing the code for merging with the sites/counts data
+# --> probably merging by haversine distance of the coordinates

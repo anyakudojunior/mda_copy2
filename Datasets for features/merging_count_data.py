@@ -57,14 +57,8 @@ data_sum = data_sum.drop(columns=["month", "season"])
 print(data_sum)
 
 
-### part 2: loading and merging with the sites data
-col_names_sites = ["siteID", "site_nr", "long", "lat", "naam", "domein", "wegnr",
-                   "district", "gemeente", "interval", "datum_van"]
-sites = pd.read_csv("data_raw\sites.csv", header=None, names=col_names_sites)
-
-# storing what we need in a new dataframe to later merge with the hourly data
-sites = sites[["siteID", "long", "lat", "gemeente"]]
-sites = sites.rename(columns={"gemeente": "municipality"})
+### part 2: loading and merging with the sites data, including public transport
+sites = pd.read_csv("sites_x_pub_transport.csv")
 
 # merge with count data
 data_new = data_sum.merge(sites, on="siteID", how="left")
