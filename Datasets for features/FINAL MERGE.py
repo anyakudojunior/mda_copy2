@@ -55,10 +55,12 @@ fill = final_merged[missing][["station_id_3", "date", "hour"]].merge(
 )
 final_merged.loc[missing, weather_variables] = fill[weather_variables].values
 
-#im too lazy to do it for a 4th closest station
+# delete columns that are not needed for analysis
+final_merged = final_merged.drop(columns=["station_id_1", "station_id_2",
+                                          "station_id_3", "lat_station", "long_station"])
 
 #save as a csv
 final_merged.to_csv("final_merged_data.csv", index=False)
 
 print(final_merged.shape)
-print(final_merged[["date", "hour", "station_id_1", "temp_dry_shelter_avg", "rain", "sun_duration"]].head(10))
+print(final_merged[["date", "hour", "temp_dry_shelter_avg", "rain", "sun_duration"]].head(10))
