@@ -2,8 +2,8 @@ import pandas as pd
 from scipy.spatial import cKDTree
 
 
-meteo = pd.read_csv("meteo_features.csv")
-site = pd.read_csv("count_data.csv")
+meteo = pd.read_csv("meteo_features_test.csv")
+site = pd.read_csv("count_data_test.csv")
 
 #dates and hours for meteo and site
 meteo["date"] = pd.to_datetime(meteo["date"], format='mixed', dayfirst=True)
@@ -62,13 +62,13 @@ final_merged = final_merged.drop(columns=["station_id_1", "station_id_2",
 # checking for missing data in siteID
 print(final_merged["siteID"].value_counts())
 ## IDs with incomplete data subsets
-print(final_merged["siteID"].value_counts()[final_merged["siteID"].value_counts() != 8784].to_string())
+print(final_merged["siteID"].value_counts()[final_merged["siteID"].value_counts() != 8760].to_string())
 ## missing completely
-print(set(range(1,145)) - set(final_merged["siteID"]))
+print(set(range(1,152)) - set(final_merged["siteID"]))
 
 
 #save as a csv
-final_merged.to_csv("merged_data.csv", index=False)
+final_merged.to_csv("merged_data_test.csv", index=False)
 
 print(final_merged.shape)
 print(final_merged[["date", "hour", "temp_dry_shelter_avg", "rain", "sun_duration"]].head(10))
