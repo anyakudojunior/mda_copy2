@@ -57,7 +57,7 @@ final_merged.loc[missing, weather_variables] = fill[weather_variables].values
 
 # delete columns that are not needed for analysis
 final_merged = final_merged.drop(columns=["station_id_1", "station_id_2",
-                                          "station_id_3", "lat_station", "long_station"])
+                                          "station_id_3", "lat_station", "long_station","season"])
 
 # checking for missing data in siteID
 print(final_merged["siteID"].value_counts())
