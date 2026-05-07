@@ -52,7 +52,7 @@ def get_season(month):
 data_sum['season'] = data_sum['month'].apply(get_season)
 data_sum = pd.concat([data_sum, pd.get_dummies(data_sum['season'])], axis=1)
 
-data_sum = data_sum.drop(columns=["month", "season"])
+data_sum = data_sum.drop(columns=["season"])
 
 print(data_sum)
 

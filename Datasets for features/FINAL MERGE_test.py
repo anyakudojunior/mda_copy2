@@ -71,4 +71,4 @@ print(set(range(1,152)) - set(final_merged["siteID"]))
 final_merged.to_csv("merged_data_test.csv", index=False)
 
 print(final_merged.shape)
-print(final_merged[["date", "hour", "temp_dry_shelter_avg", "rain", "sun_duration"]].head(10))
+print(final_merged[["date", "hour", "temp_dry_shelter_avg", "rain", "sun_duration","month"]].head(10))
