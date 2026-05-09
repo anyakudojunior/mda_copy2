@@ -34,10 +34,6 @@ X_train = data_train.drop(columns=[
     "hour", "month", "long", "lat"
 ], errors="ignore")
 
-X_test = data_test.drop(columns=[
-    "count", "start_date", "date",
-    "hour", "month", "long", "lat"
-], errors="ignore")
 
 
 # define/prepare categorical variables
@@ -73,7 +69,10 @@ params = {
     "learning_rate": 0.05,
     "num_leaves": 64,
     "max_depth": -1,
-    "feature_fraction": 0.8,
+    "feature_fraction": 0.8, 
+    "bagging_fraction": 0.8, #  each tree uses only 80% of the features
+    "bagging_freq": 1, # apply bagging every round 
+    "seed": 42
 
 }
 
@@ -82,13 +81,14 @@ params = {
 model = lgb.train(
     params,
     train_data,
-    num_boost_round=2000,
-    valid_sets=[test_data],
-    valid_names=["test"],
-    callbacks=[
-        lgb.early_stopping(stopping_rounds=50),
-        lgb.log_evaluation(period=100)
-    ]
+    num_boost_round=500,
+    #early stopping
+    #valid_sets=[test_data],
+    #valid_names=["test"],
+    #callbacks=[
+        #lgb.early_stopping(stopping_rounds=50),
+        #lgb.log_evaluation(period=100)
+    #]
 )
 
 pred = model.predict(X_test)
