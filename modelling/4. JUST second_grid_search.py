@@ -26,7 +26,7 @@ for grid_params in ParameterGrid(param_grid):
     m = lgb.train(
         params,
         train_data,
-        num_boost_round=500,
+        num_boost_round=600,
         valid_sets=[val_data],
         valid_names=["val"],
         callbacks=[lgb.log_evaluation(period=0)]

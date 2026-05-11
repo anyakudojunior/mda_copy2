@@ -94,7 +94,7 @@ params = {
 model = lgb.train(
     params,
     tr_data,
-    num_boost_round=500,
+    num_boost_round=600,
     valid_sets=[val_data],
     valid_names=["val"],
     callbacks=[lgb.log_evaluation(period=0)]
