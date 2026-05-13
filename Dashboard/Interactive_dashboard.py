@@ -25,7 +25,8 @@ sites.columns = [
 
 @st.cache_data
 def load_training_stats():
-    df = pd.read_csv(os.path.join(directory, "merged_data.csv"))
+    url = "https://drive.google.com/uc?id=1Su0gNS2v7P6Mq4dEGf40tEvGs0FrzI-v"
+    df = pd.read_csv(url)
 
     site_stats = (
         df.groupby(["siteID", "month"])["count"]
