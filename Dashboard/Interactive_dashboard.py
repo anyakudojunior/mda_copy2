@@ -35,8 +35,16 @@ month   = st.sidebar.slider("Month", 1, 12, 6)
 hour    = st.sidebar.slider("Hour", 0, 23, 12)
 weekend = st.sidebar.selectbox("Day type", [0, 1], format_func=lambda x: "Weekday" if x == 0 else "Weekend")
 temp    = st.sidebar.slider("Temperature (°C)", -10.0, 35.0, 15.0, step=0.5)
-rain    = st.sidebar.slider("Rain (mm)", 0.0, 30.0, 0.0, step=0.5)
-sun     = st.sidebar.slider("Sun duration (min)", 0.0, 600.0, 120.0, step=10.0)
+rain    = rain = st.sidebar.selectbox(
+    "Rain",
+    [0, 1],
+    format_func=lambda x: "No rain" if x == 0 else "Rain"
+)
+sun     = sun = st.sidebar.slider(
+    "Sun duration (min)",
+    0, 60, 0,
+    step=1
+)
 
 # per-site per-month stats
 
