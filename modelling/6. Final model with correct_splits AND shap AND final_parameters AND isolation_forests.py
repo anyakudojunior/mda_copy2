@@ -127,3 +127,10 @@ plt.show()
 lgb.plot_importance(model)
 plt.savefig("feature_importance_try_cyclic.jpg", dpi=300, bbox_inches="tight")
 plt.show()
+
+import os
+
+dashboard_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Dashboard")
+model_path = os.path.join(dashboard_dir, "cycling_model.txt")
+
+model.save_model(model_path)
