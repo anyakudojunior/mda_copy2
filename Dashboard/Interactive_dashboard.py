@@ -16,7 +16,7 @@ pandas_cat = model.pandas_categorical
 
 sites = pd.read_csv(os.path.join(directory, "sites.csv"), header=None)
 sites.columns = [
-    "index", "siteID", "long_site", "lat_site", "name", "operator",
+    "siteID", "index", "long_site", "lat_site", "name", "operator",
     "road", "district", "municipality", "interval", "date"
 ]
 
